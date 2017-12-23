@@ -78,6 +78,7 @@ end
 reg [31:0]MEM_WB_IR;        // to avoid error of declaration after use
 wire [31:0]mux_WB_out ;   // to avoid error of declaration after use
 
+/*                                       //shifted in WB
 always@(IF_ID_IR) begin
    //case(4'b0000)
    case(IF_ID_IR[31:28])
@@ -88,6 +89,7 @@ always@(IF_ID_IR) begin
      end
    endcase // case (IF_ID_IR[31:28])
 end
+*/
 
 always@(IF_ID_IR) begin
    case(IF_ID_IR[31:29])
@@ -102,8 +104,9 @@ end
    
 
 //Registor Bank functioning
-   
-   Registor_Bank R1(rs,rs_out,rt,rt_out,rd,rd_in);    // 2 read 1 write registor bank
+   wire [4:0]rs_w ;
+   assign rs_w=rs ;
+   Registor_Bank R1(rs_w,rs_out,rt,rt_out,rd,rd_in);    // 2 read 1 write registor bank
 //
    
 
@@ -196,7 +199,7 @@ always@(ID_EX_IR)
 always@(posedge clk)
   begin
      EX_MEM_Cond <= EX_MEM_Cond_w ;
-     EX_MEM_AluOut <= EX_MEM_AluOut_w;
+   //  EX_MEM_AluOut <= EX_MEM_AluOut_w;
      EX_MEM_B <= ID_EX_B;
      EX_MEM_IR <= ID_EX_IR;
   end
@@ -233,6 +236,21 @@ end
    assign ctrlWB= (~MEM_WB_IR[31])&(~MEM_WB_IR[30])&(MEM_WB_IR[29])&(~MEM_WB_IR[28])&(~MEM_WB_IR[27])&(~MEM_WB_IR[26]) ;
    
    mux_32_2_1 mux_WB(mux_WB_out,ctrlWB,MEM_WB_AluOut,MEM_WB_LMD);
+   
+  // data and addr to registor bank 
+   always@(mux_WB_out) begin
+      //case(4'b0000)
+      case(MEM_WB_IR[31:28])
+        4'b0000 : begin
+      //IF_ID_IR[31:28] : begin
+        rd=MEM_WB_IR[15:11] ;
+        rd_in=mux_WB_out ;
+        end
+      endcase // case (IF_ID_IR[31:28])
+   end
+   
+   
+   
 
 endmodule // mips32
 

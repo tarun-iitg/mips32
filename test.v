@@ -5,10 +5,14 @@ module test ;
 
    mips32 m(clk,en);
 
-   initial begin clk=0 ; end
+   initial begin 
+        clk=0 ;
+        end
+        
    
    always begin
      #5 clk= ~clk ;
+     m.PC=0;
    end
    
    initial
@@ -18,11 +22,16 @@ module test ;
 	m.Mem_C[2] = 32'b00001011111000001010100000000000 ; //AND R21,R31,R0 ;
 	m.Mem_C[3] = 32'b00001111111000001010100000000000 ; //OR R21,R31,R0 ;
      end
+     
+initial begin
+m.R1.Reg[31]=32'd3 ;
+m.R1.Reg[0]=0 ;
+end
 
    initial begin
    
       
-     $monitor("clk=%b  mem1=%b   R21=%b",clk,m.Mem_C[0],m.R1.Reg[21]);
+     $monitor("clk=%b  memCo=%b  rd=%b  IR=%b  R21=%b",clk,m.Mem_C[0],m.rd,m.MEM_WB_IR,m.R1.Reg[21]);
    //$finish(200);
    end
    
