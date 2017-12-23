@@ -75,11 +75,14 @@ always@(IF_ID_IR) begin
 end
 
 
+reg [31:0]MEM_WB_IR;        // to avoid error of declaration after use
+wire [31:0]mux_WB_out ;   // to avoid error of declaration after use
+
 always@(IF_ID_IR) begin
-   case(4'b0000)
-   //case(IF_ID_IR[31:28])
-   //  4'b0000 : begin
-   IF_ID_IR[31:28] : begin
+   //case(4'b0000)
+   case(IF_ID_IR[31:28])
+     4'b0000 : begin
+   //IF_ID_IR[31:28] : begin
 	 rd=MEM_WB_IR[15:11] ;
 	 rd_in=mux_WB_out ;
      end
@@ -205,7 +208,8 @@ always@(posedge clk)
 
 //-------------------````````````--------MEM--------`````````--------------   
 
-   reg [31:0]MEM_WB_IR,MEM_WB_LMD,MEM_WB_AluOut ;
+ //  reg [31:0]MEM_WB_IR;  // already declared
+   reg [31:0]MEM_WB_LMD,MEM_WB_AluOut ;
 always@(EX_MEM_IR) begin
 case(EX_MEM_IR[31:26])
   6'b001000 :  MEM_WB_LMD <= Mem_D[EX_MEM_AluOut] ;
@@ -224,7 +228,7 @@ end
 
 //---------------------````````````````````WB'''''''''''''---------------
 
-   wire [31:0]mux_WB_out ;
+   // wire [31:0]mux_WB_out ; already declared
    wire       ctrlWB ;
    assign ctrlWB= (~MEM_WB_IR[31])&(~MEM_WB_IR[30])&(MEM_WB_IR[29])&(~MEM_WB_IR[28])&(~MEM_WB_IR[27])&(~MEM_WB_IR[26]) ;
    
