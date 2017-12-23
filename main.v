@@ -9,7 +9,7 @@ module mips32(clk,en);
  //  reg [31:0] Reg[31:0];   // 32 GPRs as per mips32 architecture 
 
    reg [31:0] Mem_D[31:0]; //Data memory (as same memory can't be used due to pipeline limitaions
-   reg [31:0] PC;          //special purpose registor < program counter > 
+   reg  [31:0] PC=0;          //special purpose registor < program counter > 
 
 
    reg [31:0] IF_ID_IR,IF_ID_NPC;  //pipeline 1st stage registors
@@ -18,21 +18,25 @@ module mips32(clk,en);
    wire [31:0] mux_IF_out ; /* wire is mandatory, can't use registor of 2nd stage directly here <output of inner module can't be registor <verilog port limitations */
 
 reg EX_MEM_Cond ; //error solution
-   mux_32_2_1 mux_IF(mux_IF_out,EX_MEM_Cond,EX_MEM_ALU,PC+1); //32 2x1Mux for NPC
-   always
+reg [31:0]EX_MEM_AluOut ;
+   mux_32_2_1 mux_IF(mux_IF_out,EX_MEM_Cond,EX_MEM_AluOut,PC+1); //32 2x1Mux for NPC
+   always@(mux_IF_out)
      PC=mux_IF_out;     //combinational circuit linkage   
 
-   always@(posedge clk)             //1st stage functioning
-     begin
+wire [31:0]IF_ID_IR_w ;
+assign IF_ID_IR_w = Mem_C[PC];
+
+   always@(posedge clk)       begin      //1st stage functi
 	IF_ID_NPC <= mux_IF_out;
-	IF_ID_IR  <= Mem_C[PC];
+	IF_ID_IR  <= IF_ID_IR_w;
      end
 
    //-----------------ID----------------
-   wire [4:0]rs,rt,rd;             // registor bank addresses 
-   wire [31:0] rs_out,rt_out,rd_in; // registor bank data
-   wire [15:0] off1 ;              // offset data R-M ,R-I,conditional loop
-   wire [25:0] off2;               // offset data unconditional loop 
+   reg [4:0]rs,rt,rd;             // registor bank addresses 
+   wire [31:0] rs_out,rt_out;     // registor bank data
+   reg [31:0]rd_in ;
+   reg [15:0] off1 ;              // offset data R-M ,R-I,conditional loop
+   reg [25:0] off2;               // offset data unconditional loop 
    wire [31:0] ext_out1;          // after sign extension
    wire [31:0] ext_out2;
    wire [31:0] ext_out;          // final used per instruction 
@@ -60,19 +64,35 @@ reg EX_MEM_Cond ; //error solution
      end
    endcase // case (IF_ID_IR[31:26])
 */
-
-
+always@(IF_ID_IR) begin
+   if(IF_ID_IR_w[31:26]==6'b010000)
+      off2=IF_ID_IR[25:0] ;
+   else begin
+	 	rs=IF_ID_IR[25:21];
+		rt=IF_ID_IR[20:16];
+   end
    
-   case(IF_ID_IR[31:28])
-     4'b0000 : begin
-	assign rd=MEM_WB_IR[15:11] ;
-	assign rd_in=mux_WB_out ;
+end
+
+
+always@(IF_ID_IR) begin
+   case(4'b0000)
+   //case(IF_ID_IR[31:28])
+   //  4'b0000 : begin
+   IF_ID_IR[31:28] : begin
+	 rd=MEM_WB_IR[15:11] ;
+	 rd_in=mux_WB_out ;
      end
    endcase // case (IF_ID_IR[31:28])
+end
 
+always@(IF_ID_IR) begin
    case(IF_ID_IR[31:29])
-     3'b001 : assign off1= IF_ID_IR[15:0];
+     3'b001 :  off1= IF_ID_IR[15:0];
    endcase // case (IF_ID_IR[31:29])
+end
+   
+   
    
 //
 
@@ -126,7 +146,8 @@ assign    ctrl2=   ID_EX_IR[31]+ID_EX_IR[30]+ID_EX_IR[29];
 //     
 
 // pipeline 3rd stage registors
-   reg [31:0] EX_MEM_AluOut,EX_MEM_B,EX_MEM_IR ;
+  // reg [31:0] EX_MEM_AluOut; 
+   reg [31:0]EX_MEM_B,EX_MEM_IR ;
    //reg EX_MEM_Cond ;
    
 //
@@ -137,30 +158,32 @@ assign    ctrl2=   ID_EX_IR[31]+ID_EX_IR[30]+ID_EX_IR[29];
    assign    ctrlC= (|ID_EX_A)^(ID_EX_IR[26]);
    
  
-   mux_2_1 mux_cond(EX_MEM_Cond_w,ctrlC,1,0); // can't use EX_MEM_Cond directly 'oops'
+   mux_2_1 mux_cond(EX_MEM_Cond_w,ctrlC,1'b1,1'b0); // can't use EX_MEM_Cond directly 'oops'
 //    
 
 
 // setup ALU
    wire [31:0] EX_MEM_AluOut_w;
+   
+always@(ID_EX_IR)   
    case(ID_EX_IR[31:26])
-     6'b001000 : assign EX_MEM_AluOut_w = mux_EX_out1 + mux_EX_out2 ;
+     6'b001000 :  EX_MEM_AluOut = mux_EX_out1 + mux_EX_out2 ;
      
-     6'b001001: assign EX_MEM_AluOut_w = mux_EX_out1 + mux_EX_out2 ;
+     6'b001001:  EX_MEM_AluOut = mux_EX_out1 + mux_EX_out2 ;
      
-        6'b000000: assign EX_MEM_AluOut_w = mux_EX_out1 + mux_EX_out2 ;
-     6'b000001: assign EX_MEM_AluOut_w = mux_EX_out1 - mux_EX_out2 ;
-     6'b000010: assign EX_MEM_AluOut_w = mux_EX_out1 & mux_EX_out2 ;
-     6'b000011: assign EX_MEM_AluOut_w = mux_EX_out1 * mux_EX_out2 ;
-     6'b000100: assign EX_MEM_AluOut_w = (mux_EX_out1 < mux_EX_out2) ? 1 : 0 ;
+     6'b000000:  EX_MEM_AluOut = mux_EX_out1 + mux_EX_out2 ;
+     6'b000001:  EX_MEM_AluOut = mux_EX_out1 - mux_EX_out2 ;
+     6'b000010:  EX_MEM_AluOut= mux_EX_out1 & mux_EX_out2 ;
+     6'b000011:  EX_MEM_AluOut= mux_EX_out1 * mux_EX_out2 ;
+     6'b000100: EX_MEM_AluOut= (mux_EX_out1 < mux_EX_out2) ? 1 : 0 ;
+ 
+     6'b001010: EX_MEM_AluOut= mux_EX_out1 + mux_EX_out2 ;
+     6'b001011: EX_MEM_AluOut= mux_EX_out1 - mux_EX_out2 ;
+     6'b001100: EX_MEM_AluOut= (mux_EX_out1 < mux_EX_out2) ? 1 : 0 ;
 
-     6'b001010: assign EX_MEM_AluOut_w = mux_EX_out1 + mux_EX_out2 ;
-     6'b001011: assign EX_MEM_AluOut_w = mux_EX_out1 - mux_EX_out2 ;
-     6'b001100: assign EX_MEM_AluOut_w = (mux_EX_out1 < mux_EX_out2) ? 1 : 0 ;
-
-     6'b001110: assign EX_MEM_AluOut_w = mux_EX_out1 + mux_EX_out2 ;
-     6'b001101: assign EX_MEM_AluOut_w = mux_EX_out1 + mux_EX_out2 ;
-     6'b010000: assign EX_MEM_AluOut_w = mux_EX_out1 + mux_EX_out2 ;
+     6'b001110: EX_MEM_AluOut= mux_EX_out1 + mux_EX_out2 ;
+     6'b001101: EX_MEM_AluOut= mux_EX_out1 + mux_EX_out2 ;
+     6'b010000: EX_MEM_AluOut= mux_EX_out1 + mux_EX_out2 ;
    endcase // case (ID_EX_IR[31:26])
    
    
@@ -183,12 +206,13 @@ always@(posedge clk)
 //-------------------````````````--------MEM--------`````````--------------   
 
    reg [31:0]MEM_WB_IR,MEM_WB_LMD,MEM_WB_AluOut ;
-   
+always@(EX_MEM_IR) begin
 case(EX_MEM_IR[31:26])
-  6'b001000 : always@(posedge clk) MEM_WB_LMD <= Mem_D[EX_MEM_AluOut] ;
+  6'b001000 :  MEM_WB_LMD <= Mem_D[EX_MEM_AluOut] ;
  
-    6'b001001 : always Mem_D[EX_MEM_AluOut] <= EX_MEM_B ;
+    6'b001001 :  Mem_D[EX_MEM_AluOut] <= EX_MEM_B ;
 endcase
+end
 
 always@(posedge clk)
 begin
