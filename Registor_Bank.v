@@ -7,6 +7,6 @@ module Registor_Bank(rd_addr1,rd_data1,rd_addr2,rd_data2,rw_addr,rw_data);
 
    assign   rd_data1 = Reg[rd_addr1] ;
    assign   rd_data2 = Reg[rd_addr2] ;
-   always@(rw_addr)   Reg[rw_addr] = rw_data ;
+   always@(rw_addr or rw_data)   Reg[rw_addr] = rw_data ;
 endmodule // Registor_Bank
 
