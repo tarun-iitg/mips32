@@ -219,7 +219,7 @@ assign    ctrl2=   ID_EX_IR[31]|ID_EX_IR[30]|ID_EX_IR[29];
 // setup ALU
    reg [31:0] EX_MEM_AluOut_w;
    
-always@(ID_EX_IR)   
+always@(ID_EX_IR or mux_EX_out1 or mux_EX_out2 )   
    case(ID_EX_IR[31:26])
      6'b001000 :  EX_MEM_AluOut_w = mux_EX_out1 + mux_EX_out2 ;
      
@@ -264,9 +264,10 @@ always@(posedge clk)
    reg [31:0]MEM_WB_LMD_w,MEM_WB_LMD,MEM_WB_AluOut ;
 always@(EX_MEM_IR) begin
 case(EX_MEM_IR[31:26])
-  6'b001000 :  MEM_WB_LMD_w <= Mem_D[EX_MEM_AluOut] ;
+  6'b001000 :  MEM_WB_LMD_w = Mem_D[EX_MEM_AluOut] ;
  
     6'b001001 :  Mem_D[EX_MEM_AluOut] = EX_MEM_B ;
+    default : MEM_WB_LMD_w=0 ;
 endcase
 end
 

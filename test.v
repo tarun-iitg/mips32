@@ -18,10 +18,10 @@ module test ;
    initial
      begin
 //m.PC=1 ;
-	m.Mem_C[1] = 32'b00000011111000001010100000000000 ; //ADD R21,R31,R0 ;
+	m.Mem_C[0] = 32'b00000011111000001010100000000000 ; //ADD R21,R31,R0 ;
 		//	m.Mem_C[1] = 32'b00000011111000001010100000000000 ; //ADD R21,R31,R0 ;
 
-	m.Mem_C[0] = 32'b00000111111000001010100000000000 ; //SUB R21,R31,R0 ;
+	m.Mem_C[1] = 32'b00000111111000001010100000000000 ; //SUB R21,R31,R0 ;
 
 	m.Mem_C[2] = 32'b00001011111000001010100000000000 ; //AND R21,R31,R0 ;
 	m.Mem_C[3] = 32'b00001111111000001010100000000000 ; //OR R21,R31,R0 ;
@@ -35,9 +35,9 @@ module test ;
 	m.Mem_C[9] = 32'b00100011111101010000000000000111 ; //LW R21,R31(7);
    m.Mem_C[10] = 32'b00100111111101000000000000001000 ; //SW R20,R31(8);
    
-   m.Mem_C[11] = 32'b01000011111111111111111111111111 ; //J
+  // m.Mem_C[10] = 32'b01000011111111111111111111111111 ; //J
    m.Mem_C[12] = 32'b00111000000000001111111111111111 ; //BEQZ R0,
-  // m.Mem_C[13] = 32'b00110100000000001111111111111111 ; //BNEQZ R0,
+    m.Mem_C[11] = 32'b00110100000000001111111111111111 ; //BNEQZ R0,
       
         
 
@@ -63,7 +63,7 @@ end
    initial begin
    
       
-     $monitor("clk=%b  PC=%d ctrlC0=%b EX_MEM_Cond_w0=%b ctrlCF=%b EX_MEM_Cond_wf=%b  EX_MEM_Cond=%b IF_ID_IR=%b  A=%d B=%d ctrl1=%b  mux_EX_out1=%d ctrl2=%b   mux_EX_out2=%d  EX_MEM_AluOut_w=%d AluOutEM=%d AluOutMW=%d rd_in=%d R20=%d R21=%d m.Mem_D[39]=%d",clk,m.PC,m.ctrlC0,m.EX_MEM_Cond_w0,m.ctrlCF,m.EX_MEM_Cond_wf,m.EX_MEM_Cond,m.IF_ID_IR,m.ID_EX_A,m.ID_EX_B,m.ctrl1,m.mux_EX_out1,m.ctrl2,m.mux_EX_out2,m.EX_MEM_AluOut_w,m.EX_MEM_AluOut,m.MEM_WB_AluOut,m.rd_in,m.R1.Reg[20],m.R1.Reg[21],m.Mem_D[39]);
+     $monitor("clk=%b  PC=%d ctrlC0=%b EX_MEM_Cond_w0=%b ctrlCF=%b EX_MEM_Cond_wf=%b  EX_MEM_Cond=%b IF_ID_IR=%b  A=%d B=%d ctrl1=%b  mux_EX_out1=%d ctrl2=%b   mux_EX_out2=%d  EX_MEM_AluOut_w=%d AluOutEM=%d AluOutMW=%d  MEM_WB_LMD=%b ctrlWB=%b rd_in=%d R20=%d R21=%d m.Mem_D[39]=%d",clk,m.PC,m.ctrlC0,m.EX_MEM_Cond_w0,m.ctrlCF,m.EX_MEM_Cond_wf,m.EX_MEM_Cond,m.IF_ID_IR,m.ID_EX_A,m.ID_EX_B,m.ctrl1,m.mux_EX_out1,m.ctrl2,m.mux_EX_out2,m.EX_MEM_AluOut_w,m.EX_MEM_AluOut,m.MEM_WB_AluOut,m.MEM_WB_LMD,m.ctrlWB,m.rd_in,m.R1.Reg[20],m.R1.Reg[21],m.Mem_D[39]);
    //$finish(200);
    end
 initial begin	 
