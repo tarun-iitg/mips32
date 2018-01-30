@@ -2,9 +2,13 @@ RISC(Reduced instruction set computer) ISA(instruction set architecture) based m
 
 A basic processor is modeled with five stage pipeline approach.
 >IF (Instruction Fetch)
+
 >ID (Instruction decode)
+
 >EX (Operation Execution)
+
 >MEM (Memory Operations)
+
 >WB (Register write back)
 
 
@@ -40,6 +44,8 @@ Currently following instrunctions are supported -:
 >BNEQZ	R,off	  if(R!=0) [PC]=[PC]+off
 
 >J off		  [PC]=[PC]+off
+
+TO RUN PROGRAMM: Add "main.v" as design source and "test.v" as simulation source and run in vivado Design Suite, Results can be observed in waveform but more comfortably in Treminal console in Vivado.
 
 
 Note : Above instructions are subset of  standard MIPS32 processor and function in similar way.
