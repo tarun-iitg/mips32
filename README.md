@@ -18,17 +18,25 @@ Currently following instrunctions are supported -:
 >SW r1, off(r2) (Store word from register r1 to memory[[r2]+off])
 
 >ADD Rd,Rs,Rt   ([Rd] << [Rs]+[Rt])
+
 >SUB Rd,Rs,Rt   ([Rd] << [Rs]-[Rt])
+
 >AND Rd,Rs,Rt   ([Rd] << [Rs]&[Rt])
+
 >OR  Rd,Rs,Rt   ([Rd] << [Rs] | [Rt])
+
 >MUL Rd,Rs,Rt   ([Rd] << [Rs]*[Rt])
+
 >SLT Rd,Rs,Rt   ([Rd] = ([Rs]<[Rt]))
 
 >ADDI Rd,Rs,off   ([Rd] << [Rs]+off)
+
 >SUBI Rd,Rs,off   ([Rd] << [Rs]-off)
+
 >SLTI Rd,Rs,off   ([Rd] << ([Rs]<off))
 
 >BEQZ R,off	  if(R==0) [PC]=[PC]+off
+
 >BNEQZ	R,off	  if(R!=0) [PC]=[PC]+off
 
 >J off		  [PC]=[PC]+off
