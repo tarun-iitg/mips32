@@ -14,6 +14,7 @@ Currently following instrunctions are supported -:
 
 
 >LW r1, off(r2) (Load word into register r1 from memory[[r2]+off] )
+
 >SW r1, off(r2) (Store word from register r1 to memory[[r2]+off])
 
 >ADD Rd,Rs,Rt   ([Rd] << [Rs]+[Rt])
